@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<meta charset="}-8">
+<!-- Karta svijeta izvor:https://www.knoyd.com/blog/2017/6/23/create-map-in-d3-part1 -->
+<!-- Legenda izvor: http://tilemill-project.github.io/tilemill/docs/guides/advanced-legends/ -->
+<!-- Tooltip izvor:https://mono.software/2017/08/10/d3-js-map-of-croatia/ -->
+<head>
+<h1>Cijena galona nafte po državama izražena u $</h1>
+<!-- Definicija raspona i boja legende karte -->
+<div class='my-legend'>
+<div class='legend-scale'>
+  <ul class='legend-labels'>
+    <li><span style='background:lightgrey;'></span>No data</li>
+    <li><span style='background:#ecd9c6;'></span>0 - 1</li>
+    <li><span style='background:#dfbf9f;'></span>1 - 2</li>
+    <li><span style='background:#d2a679;'></span>2 - 3</li>
+    <li><span style='background:#c68c53;'></span>3 - 4</li>
+    <li><span style='background:#ac7339;'></span>4 - 5</li>
+	<li><span style='background:#86592d;'></span>5 - 6</li>
+	<li><span style='background:#604020;'></span>6 - 7</li>
+	<li><span style='background:#392613;'></span>>7</li>
+  </ul>
+</div>
+</div>
+</head>
+<body>
+<style>
+/* Položaj legende */
+.my-legend .legend-scale ul {
+    margin: 0;
+    padding: 0;
+    float: left;
+    list-style: none;
+    }
+  .my-legend .legend-scale ul li {
+    display: block;
+    float: left;
+    width: 50px;
+    margin-bottom: 6px;
+    text-align: center;
+    font-size: 80%;
+    list-style: none;
+    }
+/* Oblik i boja legende */ 
+  .my-legend ul.legend-labels li span {
+    display: block;
+    float: left;
+    height: 15px;
+    width: 50px;
+    }
+/*Svojstva tooltip-a*/
+.tooltip {
+    position: absolute;
+    max-width: 400px;
+    height: auto;
+    padding: 5px;
+    background-color: white;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    font-family: sans-serif;
+    font-size: 12px;
+}
+</style>
+<script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+<script src="trip_data.js"></script>
+<script src="https://unpkg.com/topojson-client@3"></script>
+<script>
+var width = 1150,
+    height = 800,
+    centered,
+    clicked_point;
+
+var projection = d3.geoMercator()
+    .translate([width / 2.2, height / 1.5]);
+    
+var plane_path = d3.geoPath()
+        .projection(projection);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("class", "map")
+	.style ("background", "#E0F2F7");
+		
+    
+var g = svg.append("g");
+var path = d3.geoPath()
+    .projection(projection);
+
+var tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0)
+            .style("width", 600);
+
+
+// učitavanje i prikaz karte svijeta:
+d3.json("gistfile1.json", function(error, topology) {
+    g.selectAll("path")
+      .data(topojson.feature(topology, topology.objects.countries)
+      .features)
+      .enter()
+      .append("path")
+      .attr("d", path)
+  
+// boja države ovisno o cijeni nafte:
+	  .style("fill",function (d){
+	  return d.properties.price >7 ? "#392613":
+	  d.properties.price >6 ? "#604020":
+	  d.properties.price >5 ? "#86592d":
+	  d.properties.price >4 ? "#ac7339":
+	  d.properties.price >3 ? "#c68c53":
+	  d.properties.price >2 ? "#d2a679":
+	  d.properties.price >1 ? "#dfbf9f":
+	  d.properties.price >0 ? "#ecd9c6":
+	  "lightgrey" })
+	     
+	   .style("stroke", "white")
+	   .style("stroke-width", 1)
+	   .style("stroke-opacity", 1)
+	   .attr('d', path)
+//tooltip za prelazak mišem preko države
+		.on("mouseover", function (d) {
+			var tip = "<h3>" + cijena.filter( function(dd) { return dd.Country == d.properties.name ? true : false } )[0].Country + ":" +
+		cijena.filter( function(dd) { return dd.Country == d.properties.name ? true : false } )[0].Price + "</h3>";
+		tooltip.html(tip)
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY) + "px");
+
+    tooltip.transition()
+        .duration(500)
+        .style("opacity", .7);
+		let country = d3.select(this).style('fill', '#993333') //boja za prelazak mišem preko države
+        let countryName = country.attr('data-name')
+        let xCentroid = country.attr('data-x-centroid')
+        let yBottom = country.attr('data-y-bottom')
+
+})
+// boja države kada se makne miš se vraća na početnu boju
+.on("mouseout", function (d) {
+		d3.select(this).style('fill', function (d){
+	  return d.properties.price >7 ? "#392613":
+	  d.properties.price >6 ? "#604020":
+	  d.properties.price >5 ? "#86592d":
+	  d.properties.price >4 ? "#ac7339":
+	  d.properties.price >3 ? "#c68c53":
+	  d.properties.price >2 ? "#d2a679":
+	  d.properties.price >1 ? "#dfbf9f":
+	  d.properties.price >0 ? "#ecd9c6":
+	  "lightgrey" })
+        
+    tooltip.transition()
+        .duration(500)
+        .style("opacity", 0)
+})
+
+      .attr('title', 'Blah')
+  let nameTag = svg.append('text')
+    .attr('font-family', 'Verdana')
+    .attr('font-size', '15px')
+})
+
+//Row-Oriented JSON podaci o cijeni nafte po državama			
+var cijena = 
+[{"Country": "Afghanistan","Price": "No data"},
+{"Country": "Albania","Price": 5.11},
+{"Country": "Algeria","Price": 1.17},
+{"Country": "Anguilla","Price": 5.49},
+{"Country": "Antigua and Barbuda","Price": 3.86},
+{"Country": "Andorra","Price": 4.35},
+{"Country": "Angola","Price": 3.94},
+{"Country": "Argentina","Price": 4.62},
+{"Country": "Armenia","Price": 3.18},
+{"Country": "Aruba","Price": 3.56},
+{"Country": "Australia","Price": 3.14},
+{"Country": "Austria","Price": 4.77},
+{"Country": "Azerbaijan","Price": 2.8},
+{"Country": "Bahamas","Price": 3.75},
+{"Country": "Bangladesh","Price": "No data"},
+{"Country": "Bahrain","Price": 2.01},
+{"Country": "Barbados","Price": 5.53},
+{"Country": "Belarus","Price": 6.1},
+{"Country": "Belgium","Price": 5.68},
+{"Country": "Belize","Price": 4.62},
+{"Country": "Bermuda","Price": 6.85},
+{"Country": "Bolivia","Price": 2.61},
+{"Country": "Bonaire","Price": 3.33},
+{"Country": "Bosnia and Herzegovina","Price": 4.09},
+{"Country": "Brazil","Price": 4.86},
+{"Country": "British Virgin Islands","Price": 3.37},
+{"Country": "Brunei","Price": 1.48},
+{"Country": "Bulgaria","Price": 4.2},
+{"Country": "Burma","Price": 1.97},
+{"Country": "Botswana","Price": "No data"},
+{"Country": "Burkina Faso","Price": "No data"},
+{"Country": "Burundi","Price": "No data"},
+{"Country": "Bhutan","Price": "No data"},
+{"Country": "Cambodia","Price": 3.22},
+{"Country": "Cameroon","Price": "No data"},
+{"Country": "Canada","Price": 3.44},
+{"Country": "Cape Verde","Price": 3.9},
+{"Country": "Cayman Islands","Price": 4.16},
+{"Country": "Chile","Price": 4.66},
+{"Country": "China","Price": 3.56},
+{"Country": "Colombia","Price": 3.56},
+{"Country": "Costa Rica","Price": 3.63},
+{"Country": "Croatia","Price": 5.19},
+{"Country": "Cuba","Price": 3.41},
+{"Country": "Curaçao","Price": 2.61},
+{"Country": "Cyprus","Price": 4.96},
+{"Country": "Czech Republic","Price": 4.5},
+{"Country": "Central African Republic","Price": "No data"},
+{"Country": "Chad","Price": "No data"},
+{"Country": "Democratic Republic of the Congo","Price": "No data"},
+{"Country": "Republic of Congo","Price": "No data"},
+{"Country": "Cote d'Ivoire","Price": "No data"},
+{"Country": "Denmark","Price": 6.13},
+{"Country": "Djibouti","Price": "No data"},
+{"Country": "Dominica","Price": 3.52},
+{"Country": "Dominican Republic","Price": 4.35},
+{"Country": "Ecuador","Price": 1.51},
+{"Country": "Egypt","Price": 1.36},
+{"Country": "El Salvador","Price": 2.76},
+{"Country": "Eritrea","Price": "No data"},
+{"Country": "Estonia","Price": 4.81},
+{"Country": "Ethiopia","Price": "No data"},
+{"Country": "Equatorial Guinea","Price": "No data"},
+{"Country": "Falkland Islands","Price": "No data"},
+{"Country": "Fiji","Price": "No data"},
+{"Country": "Finland","Price": 5.94},
+{"Country": "France","Price": 5.56},
+{"Country": "Gabon","Price": "No data"},
+{"Country": "Gambia","Price": "No data"},
+{"Country": "Georgia","Price": 2.91},
+{"Country": "Germany","Price": 5.38},
+{"Country": "Ghana","Price": "No data"},
+{"Country": "Greece","Price": 6.13},
+{"Country": "Grenada","Price": 3.82},
+{"Country": "Guadeloupe","Price": 5.45},
+{"Country": "Guatemala","Price": 2.76},
+{"Country": "Guyana","Price": 3.14},
+{"Country": "Guinea","Price": "No data"},
+{"Country": "Guinea-Bissau","Price": "No data"},
+{"Country": "Haiti","Price": 3.1},
+{"Country": "Honduras","Price": 3.37},
+{"Country": "Hong Kong","Price": 7.12},
+{"Country": "Hungary","Price": 4.69},
+{"Country": "Iceland","Price": 5.68},
+{"Country": "India","Price": 3.9},
+{"Country": "Indonesia","Price": 2.42},
+{"Country": "Iran","Price": 1.25},
+{"Country": "Iraq","Price": 2.5},
+{"Country": "Ireland","Price": 5.68},
+{"Country": "Israel","Price": 6.55},
+{"Country": "Italy","Price": 6.44},
+{"Country": "Italy - Livigno (tax free)","Price": 5.79},
+{"Country": "Jamaica","Price": 3.52},
+{"Country": "Japan","Price": 4.01},
+{"Country": "Jordan","Price": 3.94},
+{"Country": "Kazakhstan","Price": 1.74},
+{"Country": "Kenya","Price": 3.1},
+{"Country": "Kiribati","Price": "No data"},
+{"Country": "Kosovo","Price": "No data"},
+{"Country": "Kuwait","Price": 1.29},
+{"Country": "Kyrgyzstan","Price": "No data"},
+{"Country": "Laos","Price": "No data"},
+{"Country": "Latvia","Price": 4.5},
+{"Country": "Lebanon","Price": "No data"},
+{"Country": "Lesotho","Price": "No data"},
+{"Country": "Liberia","Price": 2.76},
+{"Country": "Libya","Price": 0.42},
+{"Country": "Lithuania","Price": 4.39},
+{"Country": "Luxembourg","Price": 4.85},
+{"Country": "Chad","Price": "No data"},
+{"Country": "Madagascar","Price": "No data"},
+{"Country": "Macedonia","Price": 4.5},
+{"Country": "Malawi","Price": "No data"},
+{"Country": "Malaysia","Price": 1.82},
+{"Country": "Maldives","Price": "No data"},
+{"Country": "Mali","Price": "No data"},
+{"Country": "Malta","Price": 5.6},
+{"Country": "Marshall Islands","Price": "No data"},
+{"Country": "Martinique","Price": 5.41},
+{"Country": "Mauritania","Price": 3.6},
+{"Country": "Mauritius","Price": "No data"},
+{"Country": "Mexico","Price": 3.07},
+{"Country": "Micronesia","Price": "No data"},
+{"Country": "Moldova","Price": 3.14},
+{"Country": "Monaco","Price": 6.28},
+{"Country": "Mongolia","Price": "No data"},
+{"Country": "Montenegro","Price": 4.66},
+{"Country": "Montserrat","Price": 6.09},
+{"Country": "Morocco","Price": 3.8},
+{"Country": "Myanmar","Price": "No data"},
+{"Country": "Mozambique","Price": 3.63},
+{"Country": "Namibia","Price": "No data"},
+{"Country": "Nauru","Price": "No data"},
+{"Country": "Nepal","Price": "No data"},
+{"Country": "Netherlands","Price": 6.93},
+{"Country": "New Zealand","Price": 5.68},
+{"Country": "Nicaragua","Price": 3.48},
+{"Country": "Niger","Price": 1.78},
+{"Country": "Nigeria","Price": 1.67},
+{"Country": "North Korea","Price": 5},
+{"Country": "Norway","Price": 7.04},
+{"Country": "Oman","Price": 2.08},
+{"Country": "Pakistan","Price": 2.31},
+{"Country": "Palau","Price": "No data"},
+{"Country": "Palestine","Price": 6.59},
+{"Country": "Panama","Price": 2.57},
+{"Country": "Papua New Guinea","Price": "No data"},
+{"Country": "Paraguay","Price": "No data"},
+{"Country": "Peru","Price": 3.26},
+{"Country": "Philippines","Price": 3.07},
+{"Country": "Poland","Price": 4.24},
+{"Country": "Portugal","Price": 5.56},
+{"Country": "Puerto Rico","Price": 2.46},
+{"Country": "Qatar","Price": 1.93},
+{"Country": "Romania","Price": 4.73},
+{"Country": "Russia","Price": 2.08},
+{"Country": "Rwanda","Price": "No data"},
+{"Country": "Samoa","Price": "No data"},
+{"Country": "San Marino","Price": "No data"},
+{"Country": "Sao Tome and Principe","Price": "No data"},
+{"Country": "Saudi Arabia","Price": 2.04},
+{"Country": "Senegal","Price": "No data"},
+{"Country": "Serbia","Price": 4.58},
+{"Country": "Sierra Leone","Price": 3.67},
+{"Country": "Seychelles","Price": "No data"},
+{"Country": "Singapore","Price": 5.15},
+{"Country": "Slovakia","Price": 5.3},
+{"Country": "Slovenia","Price": 5.15},
+{"Country": "Solomon Islands","Price": "No data"},
+{"Country": "Western Sahara","Price": "No data"},
+{"Country": "Somalia","Price": "No data"},
+{"Country": "Somaliland","Price": "No data"},
+{"Country": "South Africa","Price": 3.22},
+{"Country": "South Korea","Price": 4.54},
+{"Country": "South Sudan","Price": "No data"},
+{"Country": "Spain","Price": 5.11},
+{"Country": "Sri Lanka","Price": 3.71},
+{"Country": "Sudan","Price": "No data"},
+{"Country": "St Kitts and Nevis","Price": 3.6},
+{"Country": "St Lucia","Price": 4.01},
+{"Country": "St Vincent and the Grenadines","Price": 3.26},
+{"Country": "Suriname","Price": 3.29},
+{"Country": "Sweden","Price": 6.09},
+{"Country": "Switzerland","Price": 5.3},
+{"Country": "Syria","Price": 3.15},
+{"Country": "Taiwan","Price": 2.88},
+{"Country": "Tajikistan","Price": "No data"},
+{"Country": "Tanzania","Price": "No data"},
+{"Country": "Swaziland","Price": "No data"},
+{"Country": "Togo","Price": 3.14},
+{"Country": "Thailand","Price": 3.46},
+{"Country": "Tonga","Price": "No data"},
+{"Country": "Timor-Leste","Price": "No data"},
+{"Country": "Trinidad and Tobago","Price": 3.44},
+{"Country": "Tunisia","Price": 2.95},
+{"Country": "Turks and Caicos","Price": 4.96},
+{"Country": "Turkey","Price": 5.94},
+{"Country": "Turkmenistan","Price": 1.14},
+{"Country": "Uganda","Price": "No data"},
+{"Country": "United Arab Emirates","Price": 2.31},
+{"Country": "Ukraine","Price": 3.18},
+{"Country": "United Kingdom","Price": 6.02},
+{"Country": "United States","Price": 2.12},
+{"Country": "Uruguay","Price": 5.07},
+{"Country": "Uzbekistan","Price": 3.37},
+{"Country": "Vanatu","Price": "No data"},
+{"Country": "Venezuela","Price": 2.27},
+{"Country": "Vietnam","Price": 2.65},
+{"Country": "Yemen","Price": 2.73},
+{"Country": "Zambia","Price": 3.6},
+{"Country": "Zimbabwe","Price": "No data"},
+{"Country": "Greenland","Price": "No data"}]
+       
+  
+ 
+</script>
+</body>
+<footer>
+<div id="button"><a href="graf.html">Graf abecedno</a></div>
+<div id="button"><a href="graf1.html">Graf od najviše cijene</a></div>
+
+</footer>
+</html>

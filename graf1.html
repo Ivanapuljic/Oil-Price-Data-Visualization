@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+/*Svojstva tooltip-a*/
+.tooltip {
+    position: absolute;
+    max-width: 400px;
+    height: auto;
+    padding: 5px;
+    background-color: white;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    font-family: sans-serif;
+    font-size: 12px;
+}
+</style>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</head>
+<body>
+<script>
+var data = 
+[{"Country": "Albania","Price": 5.11},
+{"Country": "Algeria","Price": 1.17},
+{"Country": "Anguilla","Price": 5.49},
+{"Country": "Antigua and Barbuda","Price": 3.86},
+{"Country": "Andorra","Price": 4.35},
+{"Country": "Angola","Price": 3.94},
+{"Country": "Argentina","Price": 4.62},
+{"Country": "Armenia","Price": 3.18},
+{"Country": "Aruba","Price": 3.56},
+{"Country": "Australia","Price": 3.14},
+{"Country": "Austria","Price": 4.77},
+{"Country": "Azerbaijan","Price": 2.8},
+{"Country": "Bahamas","Price": 3.75},
+{"Country": "Bahrain","Price": 2.01},
+{"Country": "Barbados","Price": 5.53},
+{"Country": "Belarus","Price": 6.1},
+{"Country": "Belgium","Price": 5.68},
+{"Country": "Belize","Price": 4.62},
+{"Country": "Bermuda","Price": 6.85},
+{"Country": "Bolivia","Price": 2.61},
+{"Country": "Bonaire","Price": 3.33},
+{"Country": "Bosnia and Herzegovina","Price": 4.09},
+{"Country": "Brazil","Price": 4.86},
+{"Country": "British Virgin Islands","Price": 3.37},
+{"Country": "Brunei","Price": 1.48},
+{"Country": "Bulgaria","Price": 4.2},
+{"Country": "Burma","Price": 1.97},
+{"Country": "Cambodia","Price": 3.22},
+{"Country": "Canada","Price": 3.44},
+{"Country": "Cape Verde","Price": 3.9},
+{"Country": "Cayman Islands","Price": 4.16},
+{"Country": "Chile","Price": 4.66},
+{"Country": "China","Price": 3.56},
+{"Country": "Colombia","Price": 3.56},
+{"Country": "Costa Rica","Price": 3.63},
+{"Country": "Croatia","Price": 5.19},
+{"Country": "Cuba","Price": 3.41},
+{"Country": "Curaçao","Price": 2.61},
+{"Country": "Cyprus","Price": 4.96},
+{"Country": "Czech Republic","Price": 4.5},
+{"Country": "Denmark","Price": 6.13},
+{"Country": "Dominica","Price": 3.52},
+{"Country": "Dominican Republic","Price": 4.35},
+{"Country": "Ecuador","Price": 1.51},
+{"Country": "Egypt","Price": 1.36},
+{"Country": "El Salvador","Price": 2.76},
+{"Country": "Estonia","Price": 4.81},
+{"Country": "Finland","Price": 5.94},
+{"Country": "France","Price": 5.56},
+{"Country": "Georgia","Price": 2.91},
+{"Country": "Germany","Price": 5.38},
+{"Country": "Greece","Price": 6.13},
+{"Country": "Grenada","Price": 3.82},
+{"Country": "Guadeloupe","Price": 5.45},
+{"Country": "Guatemala","Price": 2.76},
+{"Country": "Guyana","Price": 3.14},
+{"Country": "Haiti","Price": 3.1},
+{"Country": "Honduras","Price": 3.37},
+{"Country": "Hungary","Price": 4.69},
+{"Country": "Iceland","Price": 5.68},
+{"Country": "India","Price": 3.9},
+{"Country": "Indonesia","Price": 2.42},
+{"Country": "Iran","Price": 1.25},
+{"Country": "Iraq","Price": 2.5},
+{"Country": "Ireland","Price": 5.68},
+{"Country": "Israel","Price": 6.55},
+{"Country": "Italy","Price": 6.44},
+{"Country": "Jamaica","Price": 3.52},
+{"Country": "Japan","Price": 4.01},
+{"Country": "Jordan","Price": 3.94},
+{"Country": "Kazakhstan","Price": 1.74},
+{"Country": "Kenya","Price": 3.1},
+{"Country": "Kuwait","Price": 1.29},
+{"Country": "Latvia","Price": 4.5},
+{"Country": "Liberia","Price": 2.76},
+{"Country": "Libya","Price": 0.42},
+{"Country": "Lithuania","Price": 4.39},
+{"Country": "Luxembourg","Price": 4.85},
+{"Country": "Macedonia","Price": 4.5},
+{"Country": "Malaysia","Price": 1.82},
+{"Country": "Malta","Price": 5.6},
+{"Country": "Martinique","Price": 5.41},
+{"Country": "Mauritania","Price": 3.6},
+{"Country": "Mexico","Price": 3.07},
+{"Country": "Moldova","Price": 3.14},
+{"Country": "Monaco","Price": 6.28},
+{"Country": "Montenegro","Price": 4.66},
+{"Country": "Montserrat","Price": 6.09},
+{"Country": "Morocco","Price": 3.8},
+{"Country": "Mozambique","Price": 3.63},
+{"Country": "Netherlands","Price": 6.93},
+{"Country": "New Zealand","Price": 5.68},
+{"Country": "Nicaragua","Price": 3.48},
+{"Country": "Niger","Price": 1.78},
+{"Country": "Nigeria","Price": 1.67},
+{"Country": "North Korea","Price": 5},
+{"Country": "Norway","Price": 7.04},
+{"Country": "Oman","Price": 2.08},
+{"Country": "Pakistan","Price": 2.31},
+{"Country": "Palestine","Price": 6.59},
+{"Country": "Panama","Price": 2.57},
+{"Country": "Peru","Price": 3.26},
+{"Country": "Philippines","Price": 3.07},
+{"Country": "Poland","Price": 4.24},
+{"Country": "Portugal","Price": 5.56},
+{"Country": "Puerto Rico","Price": 2.46},
+{"Country": "Qatar","Price": 1.93},
+{"Country": "Romania","Price": 4.73},
+{"Country": "Russia","Price": 2.08},
+{"Country": "Saudi Arabia","Price": 2.04},
+{"Country": "Serbia","Price": 4.58},
+{"Country": "Sierra Leone","Price": 3.67},
+{"Country": "Singapore","Price": 5.15},
+{"Country": "Slovakia","Price": 5.3},
+{"Country": "Slovenia","Price": 5.15},
+{"Country": "South Africa","Price": 3.22},
+{"Country": "South Korea","Price": 4.54},
+{"Country": "Spain","Price": 5.11},
+{"Country": "Sri Lanka","Price": 3.71},
+{"Country": "St Kitts and Nevis","Price": 3.6},
+{"Country": "St Lucia","Price": 4.01},
+{"Country": "St Vincent and the Grenadines","Price": 3.26},
+{"Country": "Suriname","Price": 3.29},
+{"Country": "Sweden","Price": 6.09},
+{"Country": "Switzerland","Price": 5.3},
+{"Country": "Syria","Price": 3.15},
+{"Country": "Taiwan","Price": 2.88},
+{"Country": "Togo","Price": 3.14},
+{"Country": "Thailand","Price": 3.46},
+{"Country": "Trinidad and Tobago","Price": 3.44},
+{"Country": "Tunisia","Price": 2.95},
+{"Country": "Turks and Caicos","Price": 4.96},
+{"Country": "Turkey","Price": 5.94},
+{"Country": "Turkmenistan","Price": 1.14},
+{"Country": "United Arab Emirates","Price": 2.31},
+{"Country": "Ukraine","Price": 3.18},
+{"Country": "United Kingdom","Price": 6.02},
+{"Country": "United States","Price": 2.12},
+{"Country": "Uruguay","Price": 5.07},
+{"Country": "Uzbekistan","Price": 3.37},
+{"Country": "Venezuela","Price": 2.27},
+{"Country": "Vietnam","Price": 2.65},
+{"Country": "Yemen","Price": 2.73},
+{"Country": "Zambia","Price": 3.6}]
+
+
+var margin = { top: 120, bottom: 370, left: 100, right: 120 };
+var data = data.sort(function (a,b) { return b.Price - a.Price; }); //poziv funkcije koja sortira podatke od najvećeg prema najmanjem
+		var width = 3300 - margin.left - margin.right;
+		var height = 800 - margin.top - margin.bottom;
+		var barPadding = 4;
+		var barWidth = width / data.length - barPadding;
+
+		var x = d3.scale.ordinal()
+			.domain(data.map(function (d) { return d.Country; }))
+			.rangeRoundBands([0, width], 0.2);
+		var y = d3.scale.linear()
+			.domain([0, d3.max(data, function (d) { return d.Price; })])
+			.range([height, 0]);
+			
+	
+		
+		var xAxis = d3.svg.axis()
+			.scale(x)
+			.orient("bottom").tickSize(2)
+
+		var yAxis = d3.svg.axis()
+			.scale(y)
+			.orient("left").tickSize(2)
+			.ticks(10);
+		var tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0)
+            .style("width", 600);
+
+		var svg = d3.select("body")
+			.append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.bottom + margin.top)
+			.style("background-color", "#dfbf9f")
+			.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		
+		x.domain(data.map(function (d) { return d.Country; }));
+		y.domain([0, d3.max(data, function (d) { return d.Price; })]);
+	
+//dodavanje x osi	
+	svg.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis)
+			.selectAll("text")
+			.style("text-anchor", "end")
+			.attr("dx", "-1em")
+			.attr("dy", "-0.5em")
+			.style("font-size", "1.1em")
+			.attr("transform", "rotate(-90)");
+	//dodavanje naziva x osi		
+		svg.append("text")
+			.attr("x", (width / 2))
+			.attr("y", (height + (margin.bottom / 2)))
+			.attr("dy", "2em")
+			.style("text-anchor", "middle")
+			.style("font-size", "1.3em")
+			.text("Ime države");
+		// dodavanje y osi
+		svg.append("g")
+			.attr("class", "y axis")
+			.call(yAxis)
+			.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 5)
+			.attr("dy", ".71em")
+		//dodavanje naziva y osi
+		svg.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("x", 0 - (height / 2))
+			.attr("y", 0 - margin.left)
+			.attr("dy", "1.5em")
+			.attr("text-anchor", "middle")
+			.style("font-size", "1.5em")
+			.text("Cijena galona nafte ($)");
+		// dodavanje grafa
+		svg.selectAll("bar")
+			.data(data)
+			.enter()
+			.append("rect")
+			.attr("class", "bar")
+			.attr("x", function (d) { return x(d.Country); })
+			.attr("width", x.rangeBand())
+			.attr("fill",  "#660000") //boja punjenja grafa
+			.attr("y", function (d) { return y(d.Price); })
+			.attr("height", function (d) { return (height - 1) - y(d.Price); })
+		//dodavanje tooltipa	
+			.on("mouseover", function (d) {
+			var tip = "<h3>" + d.Country + ":" + d.Price + "</h3>";
+			tooltip.html(tip)
+			.style("left", (d3.event.pageX) + "px")
+			.style("top", (d3.event.pageY) + "px");
+
+		tooltip.transition()
+			.duration(500)
+			.style("opacity", .7);
+			let country = d3.select(this).style('fill', '#993333') //boja za prelazak mišem preko države
+			let countryName = country.attr('data-name')
+			let xCentroid = country.attr('data-x-centroid')
+			let yBottom = country.attr('data-y-bottom')
+			})
+			.on("mouseout", function (d) {
+		d3.select(this).style('fill', "#660000")})//vraćanje na početnu boju nakon što se miš makne sa određene države
+		// funkcija koja sortira podatke po vrijednosti	
+		data.sort(function (a, b) {
+			return d3.descending(a.value, b.value)
+		})
+		x.domain(data.map(function (d) {
+			return d.value;
+		}));
+					
+
+	</script>
+</body>
+
+</html>
